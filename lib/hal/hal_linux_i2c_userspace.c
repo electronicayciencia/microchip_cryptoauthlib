@@ -162,6 +162,14 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
         (void)memcpy(&temp_buf[1], txdata, (size_t)(txlength - 1));
     }
 
+    /* EyC trace packets */
+    printf("> @%02x ", device_address >> 1);
+    for (int i = 0; i < txlength; i++) {
+      printf("%02x ", temp_buf[i]);
+    }
+    printf("\n");
+
+
     // Initiate I2C communication
     /* coverity[cert_fio32_c_violation] It is the system owner's responsibility ensure configuration provides a valid i2c device */
     if ((f_i2c = open(hal_data->i2c_file, O_RDWR)) < 0)
@@ -233,6 +241,14 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
     }
 
     (void)close(f_i2c);
+    
+    /* EyC trace packets */
+    printf("< @%02x ", word_address >> 1);
+    for (size_t i = 0; i < (size_t)*rxlength; i++) {
+      printf("%02x ", rxdata[i]);
+    }
+    printf("\n");
+
     return ATCA_SUCCESS;
 }
 
