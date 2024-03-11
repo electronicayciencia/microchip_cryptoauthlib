@@ -163,7 +163,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
     }
 
     /* EyC trace packets */
-    printf("> @%02x ", device_address >> 1);
+    printf(">%2d@%02x\t", txlength, device_address >> 1);
     for (int i = 0; i < txlength; i++) {
       printf("%02x ", temp_buf[i]);
     }
@@ -217,7 +217,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
     atca_i2c_host_t * hal_data = (atca_i2c_host_t*)atgetifacehaldat(iface);
     int f_i2c;  // I2C file descriptor
     
-    printf("< @%02x ", word_address >> 1); // EyC;
+    printf("<%2d@%02x\t", (uint16_t)*rxlength, word_address >> 1); // EyC;
 
     if (NULL == hal_data)
     {
@@ -256,7 +256,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
     for (size_t i = 0; i < (size_t)*rxlength; i++) {
       printf("%02x ", rxdata[i]);
     }
-    printf("\n");
+    printf("ACK\n");
 
     return ATCA_SUCCESS;
 }
