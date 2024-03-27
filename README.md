@@ -1,6 +1,39 @@
 CryptoAuthLib - Microchip CryptoAuthentication Library {#mainpage}
 ====================================================
 
+Changes by EyC
+------------------------
+
+Set the environment variable `ATCA_TRACE` to enable I2C commands tracing:
+
+```console
+$ export ATCA_TRACE=1
+
+$ ./random
+> 1@00  01 NACK
+< 4@60  04 11 33 43 ACK
+> 8@60  03 07 02 80 00 00 09 ad ACK
+> 1@60  00 ACK
+< 1@60  23 ACK
+<34@60  01 23 11 6f 00 00 60 03 3d 78 39 66 ee 61 59 00 c0 00 00 00 87 20 c7 77 e7 77 07 07 c7 77 e7 77 ee dd ACK
+> 1@60  02 ACK
+> 1@00  01 NACK
+< 4@60  04 11 33 43 ACK
+> 8@60  03 07 1b 00 00 00 24 cd ACK
+> 1@60  00 NACK
+> 1@60  00 NACK
+> 1@60  00 NACK
+> 1@60  00 ACK
+< 1@60  23 ACK
+<34@60  a4 a3 20 1b 46 0a 87 6d 4b e2 8a 3c e0 0f e7 0a b9 b1 98 6a 7d a2 b2 33 e3 32 7e 4b e8 9f 60 a0 ae b0 ACK
+> 1@60  02 ACK
+
+Random output:
+A4 A3 20 1B 46 0A 87 6D 4B E2 8A 3C E0 0F E7 0A
+B9 B1 98 6A 7D A2 B2 33 E3 32 7E 4B E8 9F 60 A0
+```
+
+
 Introduction
 ------------------------
 This library implements the APIs required to communicate with Microchip Security
