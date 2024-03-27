@@ -120,4 +120,7 @@
     #define ATCA_TRACE(s, m)         atca_trace(s)
 #endif
 
+// EyC
+#define ATCA_ENV_TRACE  "ATCA_TRACE"
+
 #endif /* CRYPTOAUTHLIB_H */

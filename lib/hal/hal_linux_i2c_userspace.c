@@ -133,6 +133,8 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
     uint8_t device_address = 0xFFu;
     uint8_t* temp_buf = NULL;
 
+    int trace = (getenv(ATCA_ENV_TRACE) != NULL);
+
     if (NULL == hal_data)
     {
         return ATCA_NOT_INITIALIZED;
@@ -163,18 +165,19 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
     }
 
     /* EyC trace packets */
-    printf(">%2d@%02x\t", txlength, device_address >> 1);
-    for (int i = 0; i < txlength; i++) {
-      printf("%02x ", temp_buf[i]);
+    if (trace) {
+        fprintf(stderr, ">%2d@%02x\t", txlength, device_address >> 1);
+        for (int i = 0; i < txlength; i++) {
+            fprintf(stderr, "%02x ", temp_buf[i]);
+        }
     }
-
 
     // Initiate I2C communication
     /* coverity[cert_fio32_c_violation] It is the system owner's responsibility ensure configuration provides a valid i2c device */
     if ((f_i2c = open(hal_data->i2c_file, O_RDWR)) < 0)
     {
         hal_free(temp_buf);
-        printf("NACK\n"); // EyC
+        if (trace) fprintf(stderr, "NACK\n"); // EyC
         return ATCA_COMM_FAIL;
     }
 
@@ -183,7 +186,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
     {
         hal_free(temp_buf);
         (void)close(f_i2c);
-        printf("NACK\n"); // EyC
+        if (trace) fprintf(stderr, "NACK\n"); // EyC
         return ATCA_COMM_FAIL;
     }
 
@@ -192,14 +195,14 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t word_address, uint8_t *txdata,
     {
         hal_free(temp_buf);
         (void)close(f_i2c);
-        printf("NACK\n"); // EyC
+        if (trace) fprintf(stderr, "NACK\n"); // EyC
         return ATCA_COMM_FAIL;
     }
 
     hal_free(temp_buf);
     (void)close(f_i2c);
     
-    printf("ACK\n"); // EyC
+    if (trace) fprintf(stderr, "ACK\n"); // EyC
     
     return ATCA_SUCCESS;
 }
@@ -216,8 +219,10 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
 {
     atca_i2c_host_t * hal_data = (atca_i2c_host_t*)atgetifacehaldat(iface);
     int f_i2c;  // I2C file descriptor
+    int trace = (getenv(ATCA_ENV_TRACE) != NULL);
     
-    printf("<%2d@%02x\t", (uint16_t)*rxlength, word_address >> 1); // EyC;
+    if (trace)
+        fprintf(stderr, "<%2d@%02x\t", (uint16_t)*rxlength, word_address >> 1); // EyC;
 
     if (NULL == hal_data)
     {
@@ -228,14 +233,14 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
     /* coverity[cert_fio32_c_violation] It is the system owner's responsibility ensure configuration provides a valid i2c device */
     if ((f_i2c = open(hal_data->i2c_file, O_RDWR)) < 0)
     {
-        printf("NAK\n"); // EyC;
+        if (trace) fprintf(stderr, "NACK\n"); // EyC;
         return ATCA_COMM_FAIL;
     }
 
     // Set Device Address
     if (ioctl(f_i2c, I2C_SLAVE, word_address >> 1) < 0)
     {
-        printf("NAK\n"); // EyC
+        if (trace) fprintf(stderr, "NACK\n"); // EyC
         (void)close(f_i2c);
         return ATCA_COMM_FAIL;
     }
@@ -245,7 +250,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
         if (read(f_i2c, rxdata, (size_t)*rxlength) != (int)*rxlength)
         {
             (void)close(f_i2c);
-            printf("NAK\n"); // EyC
+            if (trace) fprintf(stderr, "NACK\n"); // EyC
             return ATCA_COMM_FAIL;
         }
     }
@@ -253,10 +258,12 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t word_address, uint8_t *rxda
     (void)close(f_i2c);
     
     /* EyC trace packets */
-    for (size_t i = 0; i < (size_t)*rxlength; i++) {
-      printf("%02x ", rxdata[i]);
+    if (trace) {
+        for (size_t i = 0; i < (size_t)*rxlength; i++) {
+            fprintf(stderr, "%02x ", rxdata[i]);
+        }
+        fprintf(stderr, "ACK\n");
     }
-    printf("ACK\n");
 
     return ATCA_SUCCESS;
 }
